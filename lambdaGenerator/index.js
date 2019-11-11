@@ -2,15 +2,14 @@ var aws = require('aws-sdk');
 var qr = require('qr-image');
 var moment = require('moment');
 
-const bucket = 'qrCodes';
+const bucket = 'lambda-coding';
 const id = '';
 const secret = '';
 
-exports.handler = function(event, context, callback) {
+exports.handler = async function(event, context, callback) {
     var unixTime = moment().unix().toString();
     var fileName = unixTime + '.png';
     var code = qr.imageSync(unixTime, { type: 'png' });
-    var response;
     const s3Bucket = new aws.S3({
         credentials : {
             accessKeyId: id,
@@ -22,23 +21,30 @@ exports.handler = function(event, context, callback) {
         Key: fileName,
         Body: code
     };
-    s3Bucket.upload(params, function(err, data) {
-        if (err) {
-            response = {
-                statusCode: 500,
-                error: err
-            };
-        } else {
-            insertData(unixTime, fileName)
-                .then(() => {
-                    console.log('termino');
-                    response = {
-                        statusCode: 200
-                    };
+    return new Promise((resolve, reject) => {
+        s3Bucket.upload(params, function(err, data) {
+            if (err) {
+                reject({
+                    statusCode: 502,
+                    error: err
                 });
-        }
+            } else {
+                insertData(unixTime, fileName)
+                    .then((err, data) => {
+                        if (err) 
+                        reject({
+                            statusCode: 502,
+                            error: err
+                        });
+                        else
+                        resolve({
+                            statusCode: 200
+                        });
+                    });
+            }
+        });
     });
-    return response;
+    
 };
 
 var insertData = async (unT, fNa) => {

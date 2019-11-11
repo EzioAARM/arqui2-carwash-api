@@ -1,3 +1,7 @@
+CREATE DATABASE carwashdb;
+
+CREATE SCHEMA carWashSchema; 
+
 CREATE TABLE carWashSchema.Sedes(
     sedeId SERIAL PRIMARY KEY,
     ubicacion VARCHAR(100) NOT NULL
@@ -23,7 +27,7 @@ CREATE TABLE carWashSchema.Usuarios(
 
 CREATE TABLE carWashSchema.MetodosPago(
     metodoId SERIAL PRIMARY KEY,
-    userId INT NOT NULL REFERENCES Usuarios(userId),
+    userId INT NOT NULL REFERENCES carWashSchema.Usuarios(userId),
     nombreTarjeta VARCHAR(50) NOT NULL,
     ultimosDigitos VARCHAR(4) NOT NULL,
     fechaVencimiento VARCHAR(5) NOT NULL,
@@ -34,10 +38,10 @@ CREATE TABLE carWashSchema.MetodosPago(
 
 CREATE TABLE carWashSchema.Lavado(
     lavadoId BIGSERIAL PRIMARY KEY,
-    userId INT NOT NULL REFERENCES Usuarios(userId),
-    metodoId INT NOT NULL REFERENCES MetodosPago(metodoId),
-    qrCode VARCHAR(100) NOT NULL REFERENCES Codigos(codeId),
-    scanFrom INT NOT NULL REFERENCES Sedes(sedeId),
+    userId INT NOT NULL REFERENCES carWashSchema.Usuarios(userId),
+    metodoId INT NOT NULL REFERENCES carWashSchema.MetodosPago(metodoId),
+    qrCode VARCHAR(100) NOT NULL REFERENCES carWashSchema.Codigos(codeId),
+    scanFrom INT NOT NULL REFERENCES carWashSchema.Sedes(sedeId),
     carro VARCHAR(1) NOT NULL,
     faseRemojar INT NOT NULL,
     faseCepillar INT NOT NULL,
@@ -47,5 +51,5 @@ CREATE TABLE carWashSchema.Lavado(
     tiempoCepillos INT NOT NULL,
     tiempoAire INT NOT NULL,
     precio MONEY NOT NULL,
-    fechaCreacion TIMESTAMP NOT NULL
+    fechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
