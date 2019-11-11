@@ -2,7 +2,7 @@ var aws = require('aws-sdk');
 var qr = require('qr-image');
 var moment = require('moment');
 
-const bucket = 'lambda-coding';
+const bucket = 'qrcodes-carwash';
 const id = '';
 const secret = '';
 

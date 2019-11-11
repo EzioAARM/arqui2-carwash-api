@@ -52,27 +52,42 @@ exports.handler = function(event) {
             totalPago = 50;
             break;
     }
-    insertData([
-        userid,
-        metodoid,
-        codigoqr,
-        sede,
-        carSize,
-        details.remojo,
-        details.cepillado,
-        details.enjuage,
-        details.secado,
-        details.tiempoAgua,
-        details.tiempoCepillos,
-        details.tiempoAire,
-        totalPago
-    ]).then(() => {
-        response = {
-            statusCode: 200,
-            data: details
-        }
+    return new Promise((resolve, reject) => {
+        insertData([
+            userid,
+            metodoid,
+            codigoqr,
+            sede,
+            carSize,
+            details.remojo,
+            details.cepillado,
+            details.enjuage,
+            details.secado,
+            details.tiempoAgua,
+            details.tiempoCepillos,
+            details.tiempoAire,
+            totalPago
+        ]).then((err, data) => {
+            if (err)
+                reject({
+                    statusCode: 502,
+                    error: err
+                });
+            else
+                resolve({
+                    statusCode: 200,
+                    data: details,
+                    pago: totalPago
+                });
+        })
+        .catch((err) => {
+            reject({
+                statusCode: 502,
+                error: err
+            });
+        });
     });
-    return response;
+    
 }
 
 var insertData = async (data) => {
