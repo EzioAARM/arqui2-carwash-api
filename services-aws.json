@@ -1,0 +1,241 @@
+{
+    "Resources" : {
+        "Rdsdatabase" : {
+            "Type" : "AWS::RDS::DBInstance",
+            "Properties" : {
+                "DBName" : "Carwashdb",
+                "DBInstanceClass" : "db.t2.micro",
+                "Engine" : "PostgreSQL",
+                "EngineVersion" : "11.4",
+                "MasterUsername" : "axeldbUser",
+                "MasterUserPassword" : "postgrespassword@axel"
+            }
+        },
+        "s3Bucket" : {
+            "Type": "AWS::S3::Bucket",
+            "Properties" : {
+                "BucketName" : "qrCodes"
+            }
+        },
+        "carwashSocket" : {
+            "Type" : "AWS::ApiGatewayV2::Api",
+            "Properties" : {
+                "Name" : "CarwashWebSocket",
+                "ProtocolType" : "WEBSOCKET",
+                "RouteSelectionExpression" : "$request.body.action"
+            }
+        },
+        "calcularRoute" : {
+            "Type" : "AWS::ApiGatewayV2::Route",
+            "Properties" : {
+                "ApiId" : {
+                    "Ref" : "carwashSocket"
+                },
+                "RouteKey" : "$calcular",
+                "AuthorizationType" : "NONE",
+                "OperationName" : "calcularRoute",
+                "Target" : "/calcular"
+            }
+        },
+        "calcularIntegration" : {
+            "Type" : "AWS::ApiGatewayV2::Integration",
+            "Properties" : {
+                "ApiId" : {
+                    "Ref" : "carwashSocket"
+                },
+                "Description" : "Calcular integration",
+                "IntegrationType" : "AWS_PROXY",
+                "IntegrationUri" : "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${calculoLavados.Arn}/invocations"
+            }
+        },
+        "carwashRestApi" : {
+            "Type" : "AWS::ApiGateway::RestApi",
+            "Properties" : {
+                "Description" : "Api para app de carwash",
+                "Name" : "CarwashApi"
+            }
+        },
+        "roleLambda" : {
+            "Type" : "AWS::IAM::Role",
+            "Properties" : {
+                "AssumeRolePolicyDocument" : {
+                    "Version" : "2012-10-17",
+                    "Statement" : [{
+                        "Effect" : "Allow",
+                        "Action" : [
+                            "logs:CreateLogGroup",
+                            "logs:CreateLogStream",
+                            "logs:PutLogEvents"
+                        ]
+                    }]
+                }
+            }
+        },
+        "lambdaGenerator" : {
+            "Type" : "AWS::Lambda::Function",
+            "Properties" : {
+                "Description" : "Genera codigos qr, lo guarda en un bucket de S3 y lo registra en la base de datos",
+                "FunctionName" : "GeneradorQR",
+                "Handler" : "index.handler",
+                "Role" : {
+                    "Fn::GetAtt" : [
+                        "roleLambdaGenerator",
+                        "Arn"
+                    ]
+                },
+                "Runtime" : "nodejs10.x",
+                "Code" : {
+                    "S3Bucket" : "lambda-coding",
+                    "S3Key" : "carwashapp/lambdaGenerator.zip"
+                }
+            }
+        },
+        "calculoLavados" : {
+            "Type" : "AWS::Lambda::Function",
+            "Properties" : {
+                "Description" : "Realiza los calculos necesarios para realizar el lavado en base al tamaño de carro que se detecte",
+                "FunctionName" : "CalculosLavado",
+                "Handler" : "index.handler",
+                "Role" : {
+                    "Fn::GetAtt" : [
+                        "roleLambda",
+                        "Arn"
+                    ]
+                },
+                "Runtime" : "nodejs10.x",
+                "Code" : {
+                    "S3Bucket" : "lambda-coding",
+                    "S3Key" : "carwashapp/calculoLavados.zip"
+                }
+            }
+        },
+        "registrarUsuario" : {
+            "Type" : "AWS::Lambda::Function",
+            "Properties" : {
+                "Description" : "Registra un nuevo usuario desde la aplicacion movil",
+                "FunctionName" : "RegistrarUsuario",
+                "Handler" : "index.handler",
+                "Role" : {
+                    "Fn::GetAtt" : [
+                        "roleLambda",
+                        "Arn"
+                    ]
+                },
+                "Runtime" : "nodejs10.x",
+                "Code" : {
+                    "S3Bucket" : "lambda-coding",
+                    "S3Key" : "carwashapp/registrarUsuario.zip"
+                }
+            }
+        },
+        "loginUser" : {
+            "Type" : "AWS::Lambda::Function",
+            "Properties" : {
+                "Description" : "Verifica si el usuario que quiere ingresar es valido",
+                "FunctionName" : "LogearUsuario",
+                "Handler" : "index.handler",
+                "Role" : {
+                    "Fn::GetAtt" : [
+                        "roleLambda",
+                        "Arn"
+                    ]
+                },
+                "Runtime" : "nodejs10.x",
+                "Code" : {
+                    "S3Bucket" : "lambda-coding",
+                    "S3Key" : "carwashapp/loginUser.zip"
+                }
+            }
+        },
+        "registerPayment" : {
+            "Type" : "AWS::Lambda::Function",
+            "Properties" : {
+                "Description" : "Registra un nuevo metodo de pago",
+                "FunctionName" : "registerPayment",
+                "Handler" : "index.handler",
+                "Role" : {
+                    "Fn::GetAtt" : [
+                        "roleLambda",
+                        "Arn"
+                    ]
+                },
+                "Runtime" : "nodejs10.x",
+                "Code" : {
+                    "S3Bucket" : "lambda-coding",
+                    "S3Key" : "carwashapp/registerPayment.zip"
+                }
+            }
+        },
+        "getPaymentList" : {
+            "Type" : "AWS::Lambda::Function",
+            "Properties" : {
+                "Description" : "Obtiene el listado de metodos de pago",
+                "FunctionName" : "getFullPaymentList",
+                "Handler" : "index.handler",
+                "Role" : {
+                    "Fn::GetAtt" : [
+                        "roleLambda",
+                        "Arn"
+                    ]
+                },
+                "Runtime" : "nodejs10.x",
+                "Code" : {
+                    "S3Bucket" : "lambda-coding",
+                    "S3Key" : "carwashapp/getPaymentList.zip"
+                }
+            }
+        },
+        "getOnePayment" : {
+            "Type" : "AWS::Lambda::Function",
+            "Properties" : {
+                "Description" : "Devuelve un metodo de pago especifico",
+                "FunctionName" : "getOnePayment",
+                "Handler" : "index.handler",
+                "Role" : {
+                    "Fn::GetAtt" : [
+                        "roleLambda",
+                        "Arn"
+                    ]
+                },
+                "Runtime" : "nodejs10.x",
+                "Code" : {
+                    "S3Bucket" : "lambda-coding",
+                    "S3Key" : "carwashapp/getOnePayment.zip"
+                }
+            }
+        },
+        "apiDeployment" : {
+            "Type" : "AWS::ApiGatewayV2::Deployment",
+            "DependsOn" : [
+                "connectRoute",
+                "disconnectRoute",
+                "generateRoute",
+                "calcularRoute",
+                "registerRoute",
+                "loginRoute",
+                "registerPaymentRoute",
+                "allPaymentRoute",
+                "onePaymentRoute"
+
+            ],
+            "Properties" : {
+                "ApiId" : {
+                    "Ref" : "carwashSocket"
+                }
+            }
+        },
+        "apiStage" : {
+            "Type" : "AWS::ApiGatewayV2::Stage",
+            "Properties" : {
+                "StageName" : "Produccion",
+                "Description" : "Production stage",
+                "DeploymentId" : {
+                    "Ref" : "apiDeployment"
+                },
+                "ApiId" : {
+                    "Ref" : "carwashSocket"
+                }
+            }
+        }
+    }
+}
