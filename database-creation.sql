@@ -1,4 +1,15 @@
-CREATE TABLE Usuarios(
+CREATE TABLE carWashSchema.Sedes(
+    sedeId SERIAL PRIMARY KEY,
+    ubicacion VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE carWashSchema.Codigos(
+    codeId VARCHAR(100) PRIMARY KEY,
+    fileName VARCHAR(100) NOT NULL,
+    genDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE carWashSchema.Usuarios(
     userId SERIAL PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL,
     apellido VARCHAR(50) NOT NULL,
@@ -10,7 +21,7 @@ CREATE TABLE Usuarios(
     activo BOOLEAN
 );
 
-CREATE TABLE MetodosPago(
+CREATE TABLE carWashSchema.MetodosPago(
     metodoId SERIAL PRIMARY KEY,
     userId INT NOT NULL REFERENCES Usuarios(userId),
     nombreTarjeta VARCHAR(50) NOT NULL,
@@ -21,11 +32,12 @@ CREATE TABLE MetodosPago(
     activo BOOLEAN
 );
 
-CREATE TABLE Lavado(
+CREATE TABLE carWashSchema.Lavado(
     lavadoId BIGSERIAL PRIMARY KEY,
     userId INT NOT NULL REFERENCES Usuarios(userId),
     metodoId INT NOT NULL REFERENCES MetodosPago(metodoId),
     qrCode VARCHAR(100) NOT NULL REFERENCES Codigos(codeId),
+    scanFrom INT NOT NULL REFERENCES Sedes(sedeId),
     carro VARCHAR(1) NOT NULL,
     faseRemojar INT NOT NULL,
     faseCepillar INT NOT NULL,
@@ -36,16 +48,4 @@ CREATE TABLE Lavado(
     tiempoAire INT NOT NULL,
     precio MONEY NOT NULL,
     fechaCreacion TIMESTAMP NOT NULL
-);
-
-CREATE TABLE Sedes(
-    sedeId SERIAL PRIMARY KEY,
-    ubicacion VARCHAR(100) NOT NULL
-);
-
-CREATE TABLE Codigos(
-    codeId VARCHAR(100) PRIMARY KEY,
-    fileName VARCHAR(100) NOT NULL,
-    scanFrom INT NOT NULL REFERENCES Sedes(sedeId),
-    genDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

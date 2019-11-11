@@ -2,26 +2,35 @@ var aws = require('aws-sdk');
 var qr = require('qr-image');
 var moment = require('moment');
 
-const bucket = 'qrCodes';
+const bucket = '';
 const id = '';
 const secret = '';
 
-exports.handler =  async function(event, context, callback) {
+exports.handler = function(event, context, callback) {
     var unixTime = moment().unix().toString();
-    var code = qr.image(unixTime, { type: 'png' });
+    var fileName = unixTime + '.png';
+    var code = qr.imageSync(unixTime, { type: 'png' });
+
     const s3Bucket = new aws.S3({
-        accessKeyId: id,
-        secretAccessKey: secret
+        credentials : {
+            accessKeyId: id,
+            secretAccessKey: secret
+        }
     });
     const params = {
         Bucket: bucket,
-        Key: unixTime + '.png',
+        Key: fileName,
         Body: code
     };
-    s3Bucket.upload(params, (err, data) => {
-        if (err) callback(err, null);
-        callback(null, {
+    s3Bucket.upload(params, function(err, data) {
+        if (err) {
+            return callback({
+            statusCode: 500
+            }, null);
+        } else {
+            return callback({
             statusCode: 200
-        });
+            }, null);
+        }
     });
-}
+};
