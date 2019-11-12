@@ -1,15 +1,14 @@
 var aws = require('aws-sdk');
 var moment = require('moment');
 
-exports.handler = function(event) {
+exports.handler = async function(event, context, callback) {
     var carSize = 'g';
     var userid = '1';
     var metodoid = '1';
-    var codigoqr = '1573499377';
+    var codigoqr = '1573510050';
     var sede = '1';
     var totalPago = 0;
     var details = {};
-    var response = {};
     switch (carSize) {
         case 'g':
             details.remojo = 3;
@@ -52,40 +51,48 @@ exports.handler = function(event) {
             totalPago = 50;
             break;
     }
+    console.log(details);
     return new Promise((resolve, reject) => {
-        insertData([
-            userid,
-            metodoid,
-            codigoqr,
-            sede,
-            carSize,
-            details.remojo,
-            details.cepillado,
-            details.enjuage,
-            details.secado,
-            details.tiempoAgua,
-            details.tiempoCepillos,
-            details.tiempoAire,
-            totalPago
-        ]).then((err, data) => {
-            if (err)
+        try {
+            insertData([
+                userid,
+                metodoid,
+                codigoqr,
+                sede,
+                carSize,
+                details.remojo,
+                details.cepillado,
+                details.enjuage,
+                details.secado,
+                details.tiempoAgua,
+                details.tiempoCepillos,
+                details.tiempoAire,
+                totalPago
+            ]).then((err, data) => {
+                if (err)
+                    reject({
+                        statusCode: 502,
+                        error: err
+                    });
+                else
+                    resolve({
+                        statusCode: 200,
+                        data: details,
+                        pago: totalPago
+                    });
+            })
+            .catch((err) => {
                 reject({
                     statusCode: 502,
                     error: err
                 });
-            else
-                resolve({
-                    statusCode: 200,
-                    data: details,
-                    pago: totalPago
-                });
-        })
-        .catch((err) => {
+            });
+        } catch (e) {
             reject({
                 statusCode: 502,
-                error: err
+                error: e
             });
-        });
+        }
     });
     
 }
@@ -94,9 +101,10 @@ var insertData = async (data) => {
     const { Client } = require('pg');
     const client = new Client();
     await client.connect();
-    var queryText = "INSERT INTO carwashschema.lavado (userid, metodoid, qrcode, scanfrom, carro, faseremojar, fasecepillar, faseenjuagar, fasesecar, tiempoagua, tiempocepillos, tiempoaire, precio) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)";
+    var queryText = "INSERT INTO carwashschema.lavado (userid, metodoid, qrcode, scanfrom, carro, faseremojar, fasecepillar, faseenjaguar, fasesecar, tiempoagua, tiempocepillos, tiempoaire, precio) VALUES (" + data[0] + ", " + data[1] + ", '" + data[2] + "', " + data[3] + ", '" + data[4] + "', " + data[5] + ", " + data[6] + ", " + data[7] + ", " + data[8] + ", " + data[9] + ", " + data[10] + ", " + data[11] + ", " + data[12] + ")";
+    console.log(queryText);
     const res = await client.query(
         queryText, 
-        data);
+        []);
     await client.end();
 };
