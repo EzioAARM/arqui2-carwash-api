@@ -9,6 +9,7 @@ const secret = '';
 exports.handler = async function(event, context, callback) {
     var unixTime = moment().unix().toString();
     var fileName = unixTime + '.png';
+    var sede = '1';
     var code = qr.imageSync(unixTime, { type: 'png' });
     const s3Bucket = new aws.S3({
         credentials : {

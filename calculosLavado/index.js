@@ -2,11 +2,19 @@ var aws = require('aws-sdk');
 var moment = require('moment');
 
 exports.handler = async function(event, context, callback) {
-    var carSize = 'g';
-    var userid = '1';
-    var metodoid = '1';
-    var codigoqr = '1573510050';
-    var sede = '1';
+    var recivedSize = event.carSizeBin;
+    var carSize = 'm';
+    if (recivedSize == '01110' || recivedSize == '11100' || recivedSize == '00111') {
+        carSize = 'p';
+    } else if (recivedSize == '11110' || recivedSize == '01111') {
+        carSize = 'm';
+    } else if (recivedSize == '11111') {
+        carSize = 'g';
+    }
+    var userid = event.user;
+    var metodoid = event.paymentMethod;
+    var codigoqr = event.scannedCode;
+    var sede = event.sede;
     var totalPago = 0;
     var details = {};
     switch (carSize) {
