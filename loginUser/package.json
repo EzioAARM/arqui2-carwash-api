@@ -1,0 +1,17 @@
+{
+  "name": "loginuser",
+  "version": "1.0.0",
+  "description": "Funcion para autenticar a un usuario y devolver token JWT",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jwt-simple": "^0.5.6",
+    "moment": "^2.24.0",
+    "pg": "^7.12.1",
+    "sha256": "^0.2.0"
+  }
+}
