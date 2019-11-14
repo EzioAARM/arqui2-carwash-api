@@ -1,11 +1,12 @@
 var aws = require('aws-sdk');
+aws.config.update({region:'us-east-1'});
 var qr = require('qr-image');
 var moment = require('moment');
 const axios = require('axios');
 
 const bucket = 'qrcodes-carwash';
 const id = 'AKIA4XYGNBVQYHB7NBBU';
-const secret = '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';
+const secret = '';
 
 exports.handler = async function(event, context, callback) {
     var unixTime = moment().unix().toString();
@@ -33,20 +34,19 @@ exports.handler = async function(event, context, callback) {
             });
     });
     let conId = await sedeConnection;
-    console.log(conId);
     const dataToSend = {
         userId: user,
         metodoPago: pago,
         codigoLeido: codigoAnterior,
         sedeId: sede
     };
-    axios.post('https://iib2b26n9c.execute-api.us-east-1.amazonaws.com/test/@connections', dataToSend)
-        .then((res) => {
-            console.log(res);
-        })
-        .catch((err) => {
-            console.log(err);
-        });
+    const apigwManagementApi = new aws.ApiGatewayManagementApi({endpoint: "iib2b26n9c.execute-api.us-east-1.amazonaws.com/test"});
+
+    const paramsPost = {
+        ConnectionId: conId,
+        Data: JSON.stringify(dataToSend)
+    };
+    await apigwManagementApi.postToConnection(paramsPost).promise();
     return new Promise((resolve, reject) => {
         s3Bucket.upload(params, function(err, data) {
             if (err) {
@@ -65,7 +65,6 @@ exports.handler = async function(event, context, callback) {
             }
         });
     });
-    
 };
 
 var insertData = async (unT, fNa) => {
