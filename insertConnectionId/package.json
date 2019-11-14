@@ -1,0 +1,14 @@
+{
+  "name": "insertconnectionid",
+  "version": "1.0.0",
+  "description": "Function que inserta el connectionId con el id de la sede en la base de datos",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "pg": "^7.12.1"
+  }
+}
