@@ -1,0 +1,16 @@
+{
+  "name": "getuserservices",
+  "version": "1.0.0",
+  "description": "Obtiene los servicios de lavado que esa persona ha solicitado",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jwt-simple": "^0.5.6",
+    "moment": "^2.24.0",
+    "pg": "^7.12.1"
+  }
+}
