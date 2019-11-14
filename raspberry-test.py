@@ -12,7 +12,3 @@ time.sleep(60)
 instruccion = ws.recv()
 print("instrucciones " + instruccion)
 ws.close()
-
-
-
-    

@@ -5,7 +5,7 @@ var moment = require('moment');
 const axios = require('axios');
 
 const bucket = 'qrcodes-carwash';
-const id = 'AKIA4XYGNBVQYHB7NBBU';
+const id = '';
 const secret = '';
 
 exports.handler = async function(event, context, callback) {
