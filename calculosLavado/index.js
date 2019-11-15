@@ -2,6 +2,7 @@ var aws = require('aws-sdk');
 var moment = require('moment');
 
 exports.handler = async function(event, context, callback) {
+    console.log(event.carSizeBin);
     var recivedSize = event.carSizeBin;
     var carSize = 'm';
     if (recivedSize == '01110' || recivedSize == '11100' || recivedSize == '00111') {
@@ -59,48 +60,34 @@ exports.handler = async function(event, context, callback) {
             totalPago = 50;
             break;
     }
-    console.log(details);
     return new Promise((resolve, reject) => {
-        try {
-            insertData([
-                userid,
-                metodoid,
-                codigoqr,
-                sede,
-                carSize,
-                details.remojo,
-                details.cepillado,
-                details.enjuage,
-                details.secado,
-                details.tiempoAgua,
-                details.tiempoCepillos,
-                details.tiempoAire,
-                totalPago
-            ]).then((err, data) => {
-                if (err)
-                    reject({
-                        statusCode: 502,
-                        error: err
-                    });
-                else
-                    resolve({
-                        statusCode: 200,
-                        data: details,
-                        pago: totalPago
-                    });
-            })
-            .catch((err) => {
-                reject({
-                    statusCode: 502,
-                    error: err
-                });
+        insertData([
+            userid,
+            metodoid,
+            codigoqr,
+            sede,
+            carSize,
+            details.remojo,
+            details.cepillado,
+            details.enjuage,
+            details.secado,
+            details.tiempoAgua,
+            details.tiempoCepillos,
+            details.tiempoAire,
+            totalPago
+        ]).then(() => {
+            resolve({
+                statusCode: 200,
+                data: details,
+                pago: totalPago
             });
-        } catch (e) {
+        })
+        .catch((err) => {
             reject({
                 statusCode: 502,
-                error: e
+                error: err
             });
-        }
+        });
     });
     
 }

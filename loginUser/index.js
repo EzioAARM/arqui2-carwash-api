@@ -32,10 +32,6 @@ exports.handler = async (event, context, callback) => {
         }
 }
 
-var generarToken = (username) => {
-    return 
-}; 
-
 var readData = async (username, password) => {
     const { Client } = require('pg');
     const client = new Client();
