@@ -30,23 +30,32 @@ exports.handler = async function(event, context, callback) {
     var sedeConnection = new Promise((resolve, reject) => {
         readData(sede)
             .then((data) => {
-                resolve(data.rows[0].connectionid);
+                resolve(data.rows);
             });
     });
     let conId = await sedeConnection;
+    let con1 = conId[0].connectionid;
+    let con2 = conId[1].connectionid;
     const dataToSend = {
         userId: user,
         metodoPago: pago,
         codigoLeido: codigoAnterior,
-        sedeId: sede
+        sedeId: sede,
+        codigoNuevo: unixTime
     };
     const apigwManagementApi = new aws.ApiGatewayManagementApi({endpoint: "iib2b26n9c.execute-api.us-east-1.amazonaws.com/test"});
 
-    const paramsPost = {
-        ConnectionId: conId,
+    var paramsPost = {
+        ConnectionId: con1,
         Data: JSON.stringify(dataToSend)
     };
     await apigwManagementApi.postToConnection(paramsPost).promise();
+    paramsPost = {
+        ConnectionId: con2,
+        Data: unixTime
+    };
+    await apigwManagementApi.postToConnection(paramsPost).promise();
+    console.log("Envio los datos");
     return new Promise((resolve, reject) => {
         s3Bucket.upload(params, function(err, data) {
             if (err) {
@@ -60,6 +69,12 @@ exports.handler = async function(event, context, callback) {
                         resolve({
                             statusCode: 200,
                             leido: codigoAnterior
+                        });
+                    })
+                    .catch((err) => {
+                        reject({
+                            statusCode: 502,
+                            error: err
                         });
                     });
             }
