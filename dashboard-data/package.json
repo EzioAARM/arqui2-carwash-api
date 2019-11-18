@@ -1,0 +1,14 @@
+{
+  "name": "dashboard-data",
+  "version": "1.0.0",
+  "description": "Obtiene la informacion necesaria de la base de datos para mostrar en el dashboard",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "pg": "^7.12.1"
+  }
+}

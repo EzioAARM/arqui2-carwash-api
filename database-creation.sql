@@ -53,3 +53,26 @@ CREATE TABLE carWashSchema.Lavado(
     precio MONEY NOT NULL,
     fechaCreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+/*
+Funcion para el dashboard
+*/
+
+/* Mejor dia */
+select  concat(cast(date_part('day', fechacreacion) as varchar), '/', cast(date_part('month', fechacreacion) as varchar), '/', cast(date_part('year', fechacreacion) as varchar)) as fecha, sum(precio) as totalMejorDia from carwashschema.lavado group by  concat(cast(date_part('day', fechacreacion) as varchar), '/', cast(date_part('month', fechacreacion) as varchar), '/', cast(date_part('year', fechacreacion) as varchar)) order by sum(precio) desc limit 1;
+
+/* Total ganado */
+select sum(precio) as totalGeneral from carwashschema.lavado;
+
+/* Sedes activas */
+select count(sedesFuncionando) as sedesTrabajando from (select sedeid as sedesFuncionando from carwashschema.connections group by sedeid) as CantSedes;
+
+/* Usuarios registrados */
+select count(userid) as usuariosRegistrados from carwashschema.usuarios;
+
+/* Primera grafica */
+select concat(cast(date_part('day', fechacreacion) as varchar), '/', cast(date_part('month', fechacreacion) as varchar), '/', cast(date_part('year', fechacreacion) as varchar)) as fecha, sum(precio) as ganadoDiario from carwashschema.lavado group by concat(cast(date_part('day', fechacreacion) as varchar), '/', cast(date_part('month', fechacreacion) as varchar), '/', cast(date_part('year', fechacreacion) as varchar)) order by concat(cast(date_part('day', fechacreacion) as varchar), '/', cast(date_part('month', fechacreacion) as varchar), '/', cast(date_part('year', fechacreacion) as varchar)) asc;
+
+/* Segunda grafica */
+select carro, count(1) from carWashSchema.lavado group by carro
+
