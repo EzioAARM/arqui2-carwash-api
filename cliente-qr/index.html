@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Carwash</title>
+    </head>
+    <body>
+        <div id="images">
+            <img style='max-height: 100%;' src='http://qrcodes-carwash.s3-website-us-east-1.amazonaws.com/1574065498.png'>
+        </div>
+    </body>
+    <script>
+        let socket = new WebSocket("wss://iib2b26n9c.execute-api.us-east-1.amazonaws.com/test");
+        var i = 0;
+        var connId = '';
+        var data;
+        socket.onopen = function(e) {
+            socket.send('{"action":"identificarme"}');
+            i = 1;
+        };
+
+        function createDelay(milliseconds) {
+            var start = new Date().getTime();
+            for (var i = 0; i < 1e7; i++) {
+                if ((new Date().getTime() - start) > milliseconds){
+                    break;
+                }
+            }
+        }
+
+        socket.onmessage = (event) => {
+            if (i == 1) {
+                createDelay(3000);
+                connId = event.data;
+                i++;
+                socket.send('{"action":"saveSedeConnection","connectionId":' + connId + ',"sedeId":"1"}');
+            } else if (i == 2) {
+                createDelay(3000);
+                data = event.data;
+                i++;
+                console.log('esperando');
+            } else {
+                createDelay(3000);
+                document.getElementById('images').innerHTML = "<img style='max-height: 100%;' src='http://qrcodes-carwash.s3-website-us-east-1.amazonaws.com/" + event.data + ".png'>";
+            }
+        };
+    </script>
+</html>
