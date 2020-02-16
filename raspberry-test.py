@@ -2,8 +2,8 @@ from websocket import create_connection
 import time
 import json
 import requests 
-carSizeSensores = '11110'
-miSede = '2'
+carSizeSensores = '11100'
+miSede = '1'
 ws = create_connection("wss://iib2b26n9c.execute-api.us-east-1.amazonaws.com/test")
 ws.send('{"action":"identificarme"}')
 print("Receiving connectionid")
